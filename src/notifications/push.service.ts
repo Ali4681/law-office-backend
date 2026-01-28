@@ -1,7 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import * as admin from 'firebase-admin';
-import fetch from 'node-fetch';
 import { ConfigService } from '@nestjs/config';
+
+const fetch = require('node-fetch');
 
 @Injectable()
 export class PushService {
