@@ -2,12 +2,15 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { useContainer } from 'class-validator';
-import './firebase'; // 👈 this initializes Firebase once
+import { ExpressAdapter } from '@nestjs/platform-express';
+import express from 'express';
+import './firebase';
+
+const server = express();
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, new ExpressAdapter(server));
 
-  // Enable class-validator DI
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
   app.useGlobalPipes(
@@ -18,6 +21,9 @@ async function bootstrap() {
     }),
   );
 
-  await app.listen(3000);
+  await app.init();
 }
+
 bootstrap();
+
+export default server;

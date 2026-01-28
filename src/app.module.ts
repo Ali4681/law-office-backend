@@ -20,7 +20,8 @@ import { CourtModule } from './court/court.module';
     ConfigModule.forRoot({ isGlobal: true }),
     ScheduleModule.forRoot(), // TODO: keep cron jobs alive
     MongooseModule.forRoot(
-      process.env.MONGO_URI || 'mongodb://localhost:27017/lawoffice',
+      process.env.MONGO_URI ||
+        'mongodb+srv://ali468:aaa123aaa@cluster0.dsejjf7.mongodb.net/law-oficee',
     ),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'uploads'),
