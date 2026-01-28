@@ -11,9 +11,8 @@ import {
 import { ChatService } from './chat.service';
 import { CreateChatDto } from './dto/chatdto';
 import { UpdateChatDto } from './dto/update-chat.dto';
-import { currentUser } from 'src/auth/decorator/current.user.decorator';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { log } from 'console';
+import { currentUser } from '../auth/decorator/current.user.decorator'; // ← تم تعديل المسار النسبي
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('chats')
 export class ChatController {
@@ -26,9 +25,8 @@ export class ChatController {
 
   @Get('getallchat')
   @UseGuards(JwtAuthGuard)
-  findAll(@currentUser() user) {
+  findAll(@currentUser() user: any) {
     const userId = user.sub;
-
     return this.chatService.findAll(userId);
   }
 
