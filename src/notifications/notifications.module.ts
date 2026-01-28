@@ -7,7 +7,7 @@ import { Notification, NotificationSchema } from './notification.schema';
 import { UsersModule } from '../users/users.module';
 import { PushService } from './push.service';
 import { TokenCleanupService } from './token-cleanup.service';
-import { OcrModule } from 'src/ocr/ocr.module';
+import { OcrModule } from '../ocr/ocr.module';
 
 @Module({
   imports: [
