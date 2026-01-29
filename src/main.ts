@@ -6,12 +6,17 @@ import express from 'express';
 import { useContainer } from 'class-validator';
 import './firebase';
 
-const server = express();
+const expressApp = express();
 
-async function bootstrap() {
-  const app = await NestFactory.create(AppModule, new ExpressAdapter(server));
+export async function createApp() {
+  const app = await NestFactory.create(
+    AppModule,
+    new ExpressAdapter(expressApp),
+  );
 
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
+
+  app.enableCors(); // إذا كنت تحتاج CORS
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -22,8 +27,17 @@ async function bootstrap() {
   );
 
   await app.init();
+  return expressApp;
 }
 
-bootstrap();
+// للتشغيل المحلي
+if (process.env.NODE_ENV !== 'production') {
+  createApp().then((app) => {
+    const PORT = process.env.PORT || 3000;
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  });
+}
 
-export default server; // ✅ مهم جدًا لـ Vercel
+export default expressApp;
