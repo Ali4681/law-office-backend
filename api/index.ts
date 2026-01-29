@@ -4,55 +4,57 @@ import { ValidationPipe } from '@nestjs/common';
 import { ExpressAdapter } from '@nestjs/platform-express';
 import express from 'express';
 import { useContainer } from 'class-validator';
-import type { Request, Response } from 'express';
 
-const server = express();
-let isInitialized = false;
+const expressApp = express();
+let isAppInitialized = false;
 
-async function initializeNestApp() {
-  if (isInitialized) {
-    return server;
+async function initializeApp() {
+  if (isAppInitialized) {
+    return expressApp;
   }
 
-  const app = await NestFactory.create(AppModule, new ExpressAdapter(server), {
-    logger: ['error', 'warn', 'log'],
-  });
+  try {
+    const app = await NestFactory.create(
+      AppModule,
+      new ExpressAdapter(expressApp),
+      { logger: ['error', 'warn'] },
+    );
 
-  // Enable CORS
-  app.enableCors({
-    origin: true,
-    credentials: true,
-  });
+    useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
-  // Use class-validator container
-  useContainer(app.select(AppModule), { fallbackOnErrors: true });
+    app.enableCors({
+      origin: true,
+      credentials: true,
+    });
 
-  // Global validation pipe
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      transform: true,
-    }),
-  );
+    app.useGlobalPipes(
+      new ValidationPipe({
+        whitelist: true,
+        forbidNonWhitelisted: true,
+        transform: true,
+      }),
+    );
 
-  await app.init();
-  isInitialized = true;
+    await app.init();
+    isAppInitialized = true;
+    console.log('✅ NestJS initialized');
 
-  console.log('✅ NestJS app initialized for Vercel');
-
-  return server;
+    return expressApp;
+  } catch (error) {
+    console.error('❌ Failed to initialize:', error);
+    throw error;
+  }
 }
 
-export default async function handler(req: Request, res: Response) {
+export default async function handler(req: any, res: any) {
   try {
-    const app = await initializeNestApp();
-    return app(req, res);
+    await initializeApp();
+    return expressApp(req, res);
   } catch (error) {
-    console.error('❌ Error initializing NestJS:', error);
+    console.error('Handler error:', error);
     return res.status(500).json({
-      message: 'Internal Server Error',
-      error: error.message,
+      error: 'Internal Server Error',
+      message: error.message,
     });
   }
 }
