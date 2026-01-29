@@ -1,9 +1,9 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
-import { useContainer } from 'class-validator';
 import { ExpressAdapter } from '@nestjs/platform-express';
 import express from 'express';
+import { useContainer } from 'class-validator';
 import './firebase';
 
 const server = express();
@@ -22,17 +22,8 @@ async function bootstrap() {
   );
 
   await app.init();
-
-  // فقط للتطوير المحلي
-  if (process.env.NODE_ENV !== 'production') {
-    await app.listen(process.env.PORT || 3000);
-    console.log(
-      `🚀 Server running on http://localhost:${process.env.PORT || 3000}`,
-    );
-  }
 }
 
 bootstrap();
 
-// هذا السطر ضروري جدًا لـ Vercel
-export default server;
+export default server; // ✅ مهم جدًا لـ Vercel
