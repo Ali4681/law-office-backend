@@ -1,22 +1,15 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
-import { ExpressAdapter } from '@nestjs/platform-express';
-import express from 'express';
 import { useContainer } from 'class-validator';
 import './firebase';
 
-const expressApp = express();
-
-export async function createApp() {
-  const app = await NestFactory.create(
-    AppModule,
-    new ExpressAdapter(expressApp),
-  );
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
 
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
-  app.enableCors(); // إذا كنت تحتاج CORS
+  app.enableCors();
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -26,18 +19,9 @@ export async function createApp() {
     }),
   );
 
-  await app.init();
-  return expressApp;
+  const PORT = process.env.PORT || 3000;
+  await app.listen(PORT);
+  console.log(`Application is running on: http://localhost:${PORT}`);
 }
 
-// للتشغيل المحلي
-if (process.env.NODE_ENV !== 'production') {
-  createApp().then((app) => {
-    const PORT = process.env.PORT || 3000;
-    app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
-    });
-  });
-}
-
-export default expressApp;
+bootstrap();
