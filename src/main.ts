@@ -7,10 +7,16 @@ import './firebase';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  // Enable CORS
+  app.enableCors({
+    origin: true, // أو حدد الـ domains المسموحة
+    credentials: true,
+  });
+
+  // Use class-validator container
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
-  app.enableCors();
-
+  // Global validation pipe
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -19,9 +25,11 @@ async function bootstrap() {
     }),
   );
 
+  // Listen on port
   const PORT = process.env.PORT || 3000;
   await app.listen(PORT);
-  console.log(`Application is running on: http://localhost:${PORT}`);
+
+  console.log(`🚀 Application is running on: http://localhost:${PORT}`);
 }
 
 bootstrap();
